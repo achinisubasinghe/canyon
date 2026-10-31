@@ -1,96 +1,130 @@
 # Canyon
 
-Project management platform with role-based access control.
+Canyon is a project and task management platform at [canyon.achini.space](https://canyon.achini.space), built as a Bun workspace monorepo with a Next.js 16 frontend, an Express 5 REST API, Drizzle ORM over MySQL, and a role-aware tool-calling assistant.
 
-## Structure
+## Features
 
-```
-canyon/
-  canyon-be/          # Bun + Express API
-  canyon-fe/          # Next.js frontend
-  packages/shared/    # Shared TypeScript types (@canyon/shared)
-```
+- **Role-based workspaces.** Separates permissions across administrators, project managers, and team members for creating projects, assigning members, and updating task state.
+- **Tool-calling chat assistant.** The chat interface at `/agent` invokes backend project, task, member, and user services through DeepSeek tool calls under the signed-in user's server-side role checks.
+- **Shared workspace types.** `packages/shared` exports `@canyon/shared` TypeScript contracts and Zod schemas consumed by both `canyon-be` and `canyon-fe`.
+- **Cookie-backed JWT authentication.** Issues access tokens and HTTP-only refresh cookies with support for same-origin Next.js API rewrites or shared parent domains via `COOKIE_DOMAIN`.
 
-## Setup
+## Tech stack
+
+| Layer | Choice |
+| --- | --- |
+| Runtime and workspaces | [Bun](https://bun.sh) |
+| Frontend | Next.js 16, React 19, Tailwind CSS 4, Radix UI, React Hook Form, Zod 4 |
+| Backend | Express 5, TypeScript, Helmet, JWT |
+| Database | MySQL with `mysql2` and [Drizzle ORM](https://orm.drizzle.team) |
+| Chat model | DeepSeek API |
+
+## Getting started
+
+### Prerequisites
+
+- [Bun](https://bun.sh) 1.3 or later
+- MySQL 8 or a compatible MariaDB database
+- A [DeepSeek](https://platform.deepseek.com) API key for `/agent`
+
+### Install and run
+
+1. Install workspace dependencies from the repository root:
 
 ```bash
+git clone https://github.com/achinisubasinghe/canyon.git
+cd canyon
 bun install
+```
 
-# Backend
+2. Configure, migrate, seed, and start the backend API on port `3001`:
+
+```bash
 cd canyon-be
 cp .env.example .env
 bun run db:migrate
 bun run db:seed
 bun run dev
+```
 
-# Frontend (separate terminal)
+3. In another terminal, configure and start the Next.js frontend on port `3000`:
+
+```bash
 cd canyon-fe
 echo 'NEXT_PUBLIC_API_URL=http://localhost:3001/api/v1' > .env.local
 bun run dev
 ```
 
-Open http://localhost:3000
+Open [http://localhost:3000](http://localhost:3000).
 
-## Demo accounts
+### Seeded accounts
+
+Running `bun run db:seed` in `canyon-be` clears non-seed records and restores three accounts:
 
 | Email | Password | Role |
-|-------|----------|------|
-| achini@canyon.local | achini123 | Administrator |
-| akash@canyon.local | akash123 | Project Manager |
-| emalin@canyon.local | emalin123 | Team Member |
+| --- | --- | --- |
+| `achini@canyon.local` | `achini123` | Administrator |
+| `akash@canyon.local` | `akash123` | Project Manager |
+| `emalin@canyon.local` | `emalin123` | Team Member |
 
-Re-running `bun run db:seed` restores these three passwords (and clears projects, tasks, and any non-seed users).
+## Scripts
 
-## Scripts (root)
+Run these scripts from the repository root:
 
-```bash
-bun run dev:be      # Start API
-bun run dev:fe      # Start frontend
-bun run test        # Backend tests
-bun run typecheck   # Backend typecheck
-bun run ci          # Full CI pipeline locally
+| Command | Behavior |
+| --- | --- |
+| `bun run dev:be` | Start the `canyon-be` Express API in watch mode |
+| `bun run dev:fe` | Start the `canyon-fe` Next.js development server |
+| `bun run test` | Run backend tests with `bun test` |
+| `bun run typecheck` | Run `tsc --noEmit` on `canyon-be` |
+| `bun run ci` | Run backend typecheck, backend tests, frontend lint, and frontend build |
+
+## Deployment
+
+Authentication relies on an HTTP-only `refreshToken` cookie. When the frontend runs on Vercel at `canyon.achini.space` and the API runs on Render, proxy `/api/v1/*` through Next.js rewrites so the browser receives a first-party cookie on the frontend host.
+
+### Frontend environment variables
+
+| Variable | Example | Purpose |
+| --- | --- | --- |
+| `NEXT_PUBLIC_API_URL` | `/api/v1` | Browser base path routed through Next.js |
+| `API_BACKEND_URL` | `https://canyon-xtpk.onrender.com` | Server-only rewrite target in `next.config.ts` |
+
+### Backend environment variables
+
+| Variable | Example | Purpose |
+| --- | --- | --- |
+| `NODE_ENV` | `production` | Enables production cookie settings |
+| `CORS_ORIGIN` | `https://canyon.achini.space` | Allowed frontend origin |
+| `COOKIE_SAME_SITE` | `lax` | `SameSite` attribute for the refresh cookie |
+| `COOKIE_DOMAIN` | `.achini.space` | Optional parent domain when sharing cookies across subdomains |
+| `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` | Aiven MySQL values | MySQL connection parameters |
+| `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` | Random secret strings | Signing keys for access and refresh tokens |
+| `DEEPSEEK_API_KEY` | `sk-...` | API key for the `/agent` tool-calling assistant |
+
+## Project structure
+
+```text
+canyon/
+├── canyon-be/
+│   ├── drizzle/
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── db/
+│   │   ├── middleware/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   └── index.ts
+│   └── package.json
+├── canyon-fe/
+│   ├── src/
+│   │   ├── app/
+│   │   ├── components/
+│   │   └── lib/
+│   ├── next.config.ts
+│   └── package.json
+├── packages/
+│   └── shared/
+│       └── src/
+└── package.json
 ```
-
-## Canyon Agent
-
-A role-aware chat interface (inspired by ChatGPT) lives at `/agent`.
-
-The agent uses **tool calling** against the same project/task/user services as the UI. Every tool runs under the signed-in user with **server-side RBAC** (not prompt-only). It can list and mutate projects, tasks, members, and (for admins) users—within that role’s permissions.
-
-**Setup**: add `DEEPSEEK_API_KEY=sk-...` to `canyon-be/.env` (see `.env.example`).
-
-## Deployment (Vercel + Render + Aiven)
-
-Auth uses an **httpOnly refresh cookie**. That cookie must be first-party on the frontend domain. If the browser talks to Render (`*.onrender.com`) from a Vercel domain (`canyon.achini.space`), the cookie is cross-site, browsers will not send it with `SameSite=Strict`/`Lax`, and login/refresh fails with `POST /auth/refresh 401`.
-
-### Recommended: same-origin API proxy
-
-Proxy `/api/v1/*` through Next.js so the cookie is set on the frontend host.
-
-**Vercel (frontend) env**
-
-| Variable | Example |
-|----------|---------|
-| `NEXT_PUBLIC_API_URL` | `/api/v1` |
-| `API_BACKEND_URL` | `https://canyon-xtpk.onrender.com` |
-
-`API_BACKEND_URL` is server-only (used by `next.config.ts` rewrites). Redeploy after changing it.
-
-**Render (backend) env**
-
-| Variable | Example |
-|----------|---------|
-| `NODE_ENV` | `production` |
-| `CORS_ORIGIN` | `https://canyon.achini.space` |
-| `COOKIE_SAME_SITE` | `lax` (default) |
-| `DB_*` | Aiven MySQL credentials |
-| `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET` | long random secrets |
-| `DEEPSEEK_API_KEY` | agent key |
-
-### Not recommended: browser → Render directly
-
-If you must set `NEXT_PUBLIC_API_URL=https://…onrender.com/api/v1` (no proxy):
-
-1. Backend: `COOKIE_SAME_SITE=none` and ensure cookies are `Secure` (`NODE_ENV=production` or `COOKIE_SECURE=true`).
-2. Backend: `CORS_ORIGIN=https://canyon.achini.space`.
-3. Next.js middleware still cannot see the refresh cookie (it lives on the API host), so route guards that check `refreshToken` will misbehave. Prefer the proxy setup.
