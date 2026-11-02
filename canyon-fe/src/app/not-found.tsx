@@ -14,7 +14,7 @@ export default function NotFound() {
         <p className="page-kicker mt-8">404</p>
         <h1 className="page-title">Page not found</h1>
         <p className="mt-2 max-w-sm text-muted-foreground">
-          That route does not exist. Head back to your dashboard or sign in.
+          That route does not exist. Return to the dashboard or sign in.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Button asChild>

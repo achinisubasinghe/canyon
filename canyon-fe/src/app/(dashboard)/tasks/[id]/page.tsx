@@ -51,7 +51,7 @@ export default function TaskDetailPage() {
         <div className="rounded-md border border-border bg-card px-6 py-12 text-center shadow-[var(--shadow-panel)]">
           <p className="text-lg font-medium tracking-tight">Task not found</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            {error ?? "This task may have been removed or you do not have access."}
+            {error ?? "You do not have access to this task, or the task no longer exists."}
           </p>
         </div>
       </div>

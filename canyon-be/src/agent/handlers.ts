@@ -81,15 +81,16 @@ function summarize(result: ToolResult): string {
   }
   if (typeof data === "object" && data !== null && "data" in data && "total" in data) {
     const list = data as { data: unknown[]; total: number };
-    return `Returned ${Array.isArray(list.data) ? list.data.length : 0} of ${list.total} item(s)`;
+    const count = Array.isArray(list.data) ? list.data.length : 0;
+    return `Returned ${count} of ${list.total} ${list.total === 1 ? "item" : "items"}`;
   }
   if (typeof data === "object" && data !== null && "id" in data) {
     const row = data as { id: number; title?: string; name?: string; email?: string };
     const label = row.title ?? row.name ?? row.email ?? "";
-    return label ? `OK id=${row.id} (${label})` : `OK id=${row.id}`;
+    return label ? `OK id=${row.id}, ${label}` : `OK id=${row.id}`;
   }
   if (Array.isArray(data)) {
-    return `OK (${data.length} item(s))`;
+    return `OK, ${data.length} ${data.length === 1 ? "item" : "items"}`;
   }
   return "OK";
 }

@@ -42,7 +42,7 @@ function normalizeKey(value: string | number | null): string {
 
 function renderCell(column: AgentTableColumn, value: string | number | null) {
   if (value == null || value === "") {
-    return <span className="text-muted-foreground">—</span>;
+    return <span className="text-muted-foreground">None</span>;
   }
 
   const kind = column.kind ?? "text";

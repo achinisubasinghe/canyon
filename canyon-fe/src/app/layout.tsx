@@ -18,12 +18,10 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Canyon — Project & task management",
+  title: "Canyon",
   description: "Track projects, assignments, and task progress for your team.",
 };
 
-// Tiny synchronous script to set the correct class before React hydrates.
-// Prevents flash of the wrong theme on first load / refresh.
 const themeScript = `
 (function() {
   try {

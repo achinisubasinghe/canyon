@@ -45,7 +45,7 @@ function parseToolArgs(raw: string): unknown {
 
 async function callDeepSeek(messages: LlmMessage[], stream: boolean) {
   if (!config.DEEPSEEK_API_KEY) {
-    throw new AppError(500, "Canyon Agent is not configured (missing DEEPSEEK_API_KEY)");
+    throw new AppError(500, "Canyon Agent is not configured because DEEPSEEK_API_KEY is missing");
   }
 
   const response = await fetch(DEEPSEEK_URL, {
@@ -104,9 +104,7 @@ async function streamFinalContent(res: Response, messages: LlmMessage[]) {
         if (delta) {
           writeSse(res, "content", { delta });
         }
-      } catch {
-        // ignore partial chunks
-      }
+      } catch {}
     }
   }
 }
@@ -195,14 +193,10 @@ export async function runAgentLoop(
         continue;
       }
 
-      // Final text: stream a dedicated request for better UX, or use non-stream content.
       const content = message.content ?? "";
       if (content) {
-        // Non-stream final content from this round — emit as one content delta
-        // (DeepSeek already returned full message without tools).
         writeSse(res, "content", { delta: content });
       } else {
-        // No content and no tools — try streaming a follow-up
         await streamFinalContent(res, messages);
       }
 
@@ -212,7 +206,7 @@ export async function runAgentLoop(
     }
 
     writeSse(res, "error", {
-      message: "Agent stopped: too many tool rounds. Try a more specific request.",
+      message: "Agent stopped after reaching the tool call limit. Narrow your request.",
     });
     writeSse(res, "done", {});
     res.end();

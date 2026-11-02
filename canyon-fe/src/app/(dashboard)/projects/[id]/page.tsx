@@ -139,7 +139,7 @@ export default function ProjectDetailPage() {
         <div className="rounded-md border border-border bg-card px-6 py-12 text-center shadow-[var(--shadow-panel)]">
           <p className="text-lg font-medium tracking-tight">Project not found</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            {error ?? "This project may have been removed or you do not have access."}
+            {error ?? "You do not have access to this project, or the project no longer exists."}
           </p>
         </div>
       </div>
@@ -198,7 +198,7 @@ export default function ProjectDetailPage() {
                       <SelectContent>
                         {candidateMembers.map((user) => (
                           <SelectItem key={user.id} value={String(user.id)}>
-                            {user.name} ({user.email})
+                            {user.name}, {user.email}
                           </SelectItem>
                         ))}
                       </SelectContent>

@@ -5,12 +5,12 @@ const paginationProps = {
     type: "integer",
     minimum: 1,
     maximum: 50,
-    description: "Max items to return (default 20, max 50)",
+    description: "Maximum items to return, default 20 and max 50",
   },
   offset: {
     type: "integer",
     minimum: 0,
-    description: "Pagination offset (default 0)",
+    description: "Pagination offset, default 0",
   },
 };
 
@@ -97,7 +97,7 @@ export const AGENT_TOOLS: OpenAiToolDefinition[] = [
 
   tool(
     "list_candidate_members",
-    "List active users who are not yet members of the project (for adding members).",
+    "List active users who are not yet members of the project.",
     {
       properties: {
         projectId: { type: "integer" },
@@ -143,7 +143,7 @@ export const AGENT_TOOLS: OpenAiToolDefinition[] = [
     required: ["projectId", "userId"],
   }),
 
-  tool("list_tasks", "List tasks visible to the current user (role-scoped).", {
+  tool("list_tasks", "List tasks visible to the current user.", {
     properties: {
       ...paginationProps,
       status: {
@@ -158,7 +158,7 @@ export const AGENT_TOOLS: OpenAiToolDefinition[] = [
     },
   }),
 
-  tool("list_project_tasks", "List tasks in a project (team members only see their assigned tasks).", {
+  tool("list_project_tasks", "List tasks in a project. Team members only see their assigned tasks.", {
     properties: {
       projectId: { type: "integer" },
       ...paginationProps,
@@ -181,7 +181,7 @@ export const AGENT_TOOLS: OpenAiToolDefinition[] = [
     required: ["taskId"],
   }),
 
-  tool("create_task", "Create a task in a project. Requires project manage (admin/PM).", {
+  tool("create_task", "Create a task in a project. Requires project manager or administrator access.", {
     properties: {
       projectId: { type: "integer" },
       title: { type: "string" },
@@ -200,7 +200,7 @@ export const AGENT_TOOLS: OpenAiToolDefinition[] = [
     required: ["projectId", "title"],
   }),
 
-  tool("update_task", "Update task fields. Requires edit permission (manage or assignee).", {
+  tool("update_task", "Update task fields. Requires project manager access or task assignment.", {
     properties: {
       taskId: { type: "integer" },
       title: { type: "string" },
@@ -290,7 +290,7 @@ export const AGENT_TOOLS: OpenAiToolDefinition[] = [
 
   tool(
     "deactivate_user",
-    "Soft-deactivate a user (isActive=false). Administrator only. Cannot deactivate self. Confirm first.",
+    "Soft-deactivate a user by setting isActive to false. Administrator only. Cannot deactivate self. Confirm first.",
     {
       properties: {
         userId: { type: "integer" },

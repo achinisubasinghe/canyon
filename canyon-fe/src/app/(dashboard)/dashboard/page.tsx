@@ -35,7 +35,7 @@ export default function DashboardPage() {
         <p className="page-kicker">Overview</p>
         <h1 className="page-title">Welcome back, {user?.name.split(" ")[0]}</h1>
         <p className="mt-2 max-w-prose text-muted-foreground">
-          Your projects and open work at a glance.
+          Active projects and assigned tasks.
         </p>
       </div>
 
@@ -50,20 +50,20 @@ export default function DashboardPage() {
           <MetricCard
             title="Open tasks"
             value={openTasks}
-            hint="Needs attention"
+            hint="Todo, in progress, and in review"
             featured
             icon={<ListTodo className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />}
           />
           <MetricCard
             title="Projects"
             value={projects.length}
-            hint="Active portfolio"
+            hint="Visible to your account"
             icon={<FolderKanban className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />}
           />
           <MetricCard
             title="Completed"
             value={completedTasks}
-            hint="Delivered work"
+            hint="Marked done"
             icon={<CheckCircle2 className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />}
           />
         </div>

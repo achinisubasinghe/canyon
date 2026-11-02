@@ -39,7 +39,6 @@ export function TaskTable({
 
   return (
     <>
-      {/* Mobile: stacked cards reusing the notebook aesthetic (status bar, hairlines, mono ids, badges) */}
       <div className="space-y-3 md:hidden">
         {tasks.map((task) => {
           const opacity = statusMarkerOpacity(task.status);
@@ -71,7 +70,7 @@ export function TaskTable({
 
                   <div className="mt-2 flex flex-wrap gap-x-3 gap-y-0.5 font-mono text-xs tabular text-muted-foreground">
                     <span>{task.assigneeName ?? "Unassigned"}</span>
-                    <span>{task.dueDate ?? "—"}</span>
+                    <span>{task.dueDate ?? "No due date"}</span>
                   </div>
                 </div>
               </Link>
@@ -80,7 +79,6 @@ export function TaskTable({
         })}
       </div>
 
-      {/* Desktop: original table view */}
       <div className="hidden md:block">
         <Table>
           <TableHeader>
@@ -124,7 +122,7 @@ export function TaskTable({
                   {task.assigneeName ?? "Unassigned"}
                 </TableCell>
                 <TableCell className="font-mono text-xs tabular text-muted-foreground">
-                  {task.dueDate ?? "—"}
+                  {task.dueDate ?? "No due date"}
                 </TableCell>
               </TableRow>
             ))}

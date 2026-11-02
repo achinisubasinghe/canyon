@@ -3,7 +3,6 @@ import type { ToolResult } from "./types.js";
 export interface AgentTableColumn {
   key: string;
   label: string;
-  /** Hint for FE formatting: id | status | priority | mono | text */
   kind?: "id" | "status" | "priority" | "mono" | "text";
 }
 
@@ -14,7 +13,7 @@ export interface AgentTable {
 }
 
 function labelEnum(value: unknown): string {
-  if (value == null) return "—";
+  if (value == null) return "None";
   return String(value).replace(/_/g, " ");
 }
 
@@ -48,7 +47,7 @@ function projectsTable(rows: unknown[]): AgentTable {
       const done = p.completedTasks ?? 0;
       return {
         id: p.id ?? null,
-        name: p.name ?? "—",
+        name: p.name ?? "None",
         status: labelEnum(p.status),
         tasks: `${done}/${total}`,
       };
@@ -86,7 +85,7 @@ function tasksTable(rows: unknown[]): AgentTable {
       }
       return {
         id: t.id ?? null,
-        title: t.title ?? "—",
+        title: t.title ?? "None",
         status: labelEnum(t.status),
         priority: labelEnum(t.priority),
         projectId: t.projectId ?? null,
@@ -117,9 +116,9 @@ function usersTable(rows: unknown[]): AgentTable {
       };
       return {
         id: u.id ?? null,
-        name: u.name ?? "—",
-        email: u.email ?? "—",
-        roles: Array.isArray(u.roles) ? u.roles.map(labelEnum).join(", ") : "—",
+        name: u.name ?? "None",
+        email: u.email ?? "None",
+        roles: Array.isArray(u.roles) ? u.roles.map(labelEnum).join(", ") : "None",
         active: u.isActive === false ? "no" : "yes",
       };
     }),
@@ -145,8 +144,8 @@ function membersTable(rows: unknown[]): AgentTable {
       };
       return {
         userId: m.userId ?? m.id ?? null,
-        name: m.name ?? "—",
-        email: m.email ?? "—",
+        name: m.name ?? "None",
+        email: m.email ?? "None",
         memberRole: labelEnum(m.memberRole),
       };
     }),
@@ -165,17 +164,13 @@ function peopleTable(rows: unknown[], title: string): AgentTable {
       const u = raw as { id?: number; name?: string; email?: string };
       return {
         id: u.id ?? null,
-        name: u.name ?? "—",
-        email: u.email ?? "—",
+        name: u.name ?? "None",
+        email: u.email ?? "None",
       };
     }),
   };
 }
 
-/**
- * Build a UI table payload from a successful tool result.
- * Returns undefined when the result is not tabular.
- */
 export function toAgentTable(toolName: string, result: ToolResult): AgentTable | undefined {
   if (!result.ok) return undefined;
 
@@ -209,7 +204,6 @@ export function toAgentTable(toolName: string, result: ToolResult): AgentTable |
       if (!Array.isArray(data) || data.length === 0) return undefined;
       return peopleTable(data, "Assignable");
     case "get_project": {
-      // Optional: members of a single project as a table
       if (data && typeof data === "object" && "members" in data) {
         const members = (data as { members?: unknown }).members;
         if (Array.isArray(members) && members.length > 0) {

@@ -34,7 +34,6 @@ export function ConfirmActions({
   );
 }
 
-/** Detect confirmation marker and soft confirmation phrasing. */
 export function needsConfirmation(content: string): boolean {
   if (!content.trim()) return false;
   if (/(?:^|\n)\s*\[\[confirm\]\]\s*$/i.test(content.trim())) return true;
@@ -47,12 +46,10 @@ export function needsConfirmation(content: string): boolean {
   return soft && /\?\s*$/.test(content.trim());
 }
 
-/** Strip [[confirm]] marker for display. */
 export function stripConfirmMarker(content: string): string {
   return content.replace(/(?:\n|^)\s*\[\[confirm\]\]\s*$/i, "").trimEnd();
 }
 
-/** Remove emoji / pictographs so agent text matches Canyon's mono UI. */
 export function stripEmoji(content: string): string {
   return content
     .replace(/\p{Extended_Pictographic}/gu, "")

@@ -81,7 +81,7 @@ export function UserEditDialog({
             <Input id="editEmail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="editPassword">New password (optional)</Label>
+            <Label htmlFor="editPassword">New password, leave blank to keep current</Label>
             <Input
               id="editPassword"
               type="password"

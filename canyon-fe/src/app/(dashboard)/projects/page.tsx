@@ -65,7 +65,7 @@ export default function ProjectsPage() {
           <p className="page-kicker">Portfolio</p>
           <h1 className="page-title">Projects</h1>
           <p className="mt-2 max-w-prose text-muted-foreground">
-            Organize work by project and track completion.
+            Manage projects, assign members, and track task completion.
           </p>
         </div>
         {canCreate ? (

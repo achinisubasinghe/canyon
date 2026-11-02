@@ -57,7 +57,7 @@ const ROLE_SUGGESTIONS: Record<RoleName, Suggestion[]> = {
       label: "Create a task",
       prompt: "On my first project, create a task titled Follow up with stakeholders.",
     },
-    { label: "What needs attention?", prompt: "Which of my tasks or project tasks are not done yet?" },
+    { label: "Show incomplete tasks", prompt: "Which of my tasks or project tasks are not done yet?" },
   ],
   team_member: [
     { label: "Show my open tasks", prompt: "Show me all my open tasks." },
@@ -178,7 +178,6 @@ export default function AgentPage() {
     setIsStreaming(true);
     setLiveTools([]);
 
-    // Snapshot before this turn's setState commits (includes prior assistant text with [[confirm]])
     const historyForApi = [
       ...messagesRef.current.map((m) => ({ role: m.role, content: m.content })),
       { role: "user" as const, content: userText },
@@ -206,7 +205,7 @@ export default function AgentPage() {
 
       if (!res.ok || !res.body) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `Request failed (${res.status})`);
+        throw new Error(body.error || `Request failed with status ${res.status}`);
       }
 
       const reader = res.body.getReader();
@@ -335,7 +334,7 @@ export default function AgentPage() {
     sendMessage(yes ? "Yes, proceed." : "No, cancel.");
   }
 
-  const boundaryText = `This agent can act for you as ${currentRole.replace(/_/g, " ")} — RBAC is enforced on every action.`;
+  const boundaryText = `Acting as ${currentRole.replace(/_/g, " ")}. Role permissions apply to every action.`;
   const lastAssistantId = [...messages].reverse().find((m) => m.role === "assistant")?.id;
 
   return (
@@ -346,7 +345,7 @@ export default function AgentPage() {
           <div>
             <div className="text-sm font-semibold tracking-tight">Agent</div>
             <div className="font-mono text-[11px] text-muted-foreground">
-              Role-aware assistant with tools
+              Role-scoped tool assistant
             </div>
           </div>
         </div>
@@ -371,8 +370,7 @@ export default function AgentPage() {
                 What are you working on?
               </h1>
               <p className="mt-2 max-w-md text-sm text-muted-foreground">
-                I can look up and change projects, tasks, and (if you&apos;re an admin) users —
-                only within your role.
+                Look up or update projects, tasks, and user accounts within your role permissions.
               </p>
 
               <div className="mt-8 grid w-full max-w-xl gap-2">
@@ -478,7 +476,7 @@ export default function AgentPage() {
           {isStreaming && liveTools.length === 0 && (
             <div className="flex justify-start">
               <div className="agent-bubble-assistant max-w-[80%] bg-muted px-4 py-3 text-sm text-muted-foreground">
-                Canyon Agent is thinking…
+                Working...
               </div>
             </div>
           )}
@@ -504,7 +502,7 @@ export default function AgentPage() {
               type="button"
               className="mb-1 flex h-8 w-8 items-center justify-center rounded-sm text-muted-foreground transition-colors duration-150 hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
               onClick={() => textareaRef.current?.focus()}
-              aria-label="Add attachment (not yet supported)"
+              aria-label="Focus message input"
             >
               <Plus className="h-4 w-4" strokeWidth={1.75} />
             </button>
@@ -531,7 +529,7 @@ export default function AgentPage() {
           </div>
 
           <p className="mt-2 px-1 text-center font-mono text-[10px] text-muted-foreground/50">
-            Press Enter to send · Shift + Enter for newline
+            Press Enter to send, Shift + Enter for a new line
           </p>
         </div>
       </div>
