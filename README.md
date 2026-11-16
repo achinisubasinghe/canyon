@@ -2,6 +2,8 @@
 
 Canyon is a project and task management platform at [canyon.achini.space](https://canyon.achini.space), built as a Bun workspace monorepo with a Next.js 16 frontend, an Express 5 REST API, Drizzle ORM over MySQL, and a role-aware tool-calling assistant.
 
+![Canyon application screenshot](docs/screenshot.png)
+
 ## Features
 
 - **Role-based workspaces.** Separates permissions across administrators, project managers, and team members for creating projects, assigning members, and updating task state.
